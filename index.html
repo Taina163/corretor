@@ -24,15 +24,17 @@
             background-color: #f4f7fc;
             padding: 20px;
         }
-    .logo-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
+
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
         .logo {
-    width: 90px; /* Tamanho da logo */
-    height: 90px;
-}
+            width: 90px; /* Tamanho da logo */
+            height: 90px;
+        }
 
         .container {
             width: 100%;
@@ -100,7 +102,7 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             min-height: 100px;
-            font-family: 'Source Code Pro', monospace; /* Fonte para código */
+            font-family: 'Source Code Pro', monospace;
             font-size: 14px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             overflow-x: auto;
@@ -155,7 +157,7 @@
             overflow-x: auto;
             border: 1px solid #ddd;
             margin-top: 15px;
-            font-family: 'Source Code Pro', monospace; /* Fonte monoespaçada para código */
+            font-family: 'Source Code Pro', monospace;
         }
 
         /* Estilos responsivos */
@@ -179,102 +181,102 @@
     </style>
 </head>
 <body>
- <div class="logo-container">
+    <div class="logo-container">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSKXDVo-XKlkR3oIE2AOB3ReEz2y_KskI0oQ&s" alt="Logo" class="logo">
     </div>
 
-<div class="container">
-    <div class="header">Corretor de HTML</div>
-    <textarea id="htmlInput" placeholder="Insira seu código HTML aqui..."></textarea>
-    <button class="btn" onclick="checkHTML()">Verificar Código</button>
-    <div id="output" class="output"></div>
-</div>
+    <div class="container">
+        <div class="header">Corretor de HTML</div>
+        <textarea id="htmlInput" placeholder="Insira seu código HTML aqui..."></textarea>
+        <button class="btn" onclick="checkHTML()">Verificar Código</button>
+        <div id="output" class="output"></div>
+    </div>
 
-<script>
-    function checkHTML() {
-        const input = document.getElementById("htmlInput").value;
-        const output = document.getElementById("output");
-        output.innerHTML = ""; // Limpar a área de saída
+    <script>
+        function checkHTML() {
+            const input = document.getElementById("htmlInput").value;
+            const output = document.getElementById("output");
+            output.innerHTML = ""; // Limpar a área de saída
 
-        // Regex para capturar tags HTML
-        const tagPattern = /<\/?([a-z]+)(?: .*)?>/g;
-        const tags = [];
-        let match;
+            // Regex para capturar tags HTML
+            const tagPattern = /<\/?([a-z]+)(?: .*)?>/g;
+            const tags = [];
+            let match;
 
-        // Extrair todas as tags do código
-        while ((match = tagPattern.exec(input)) !== null) {
-            tags.push({ tag: match[1], isClosing: match[0][1] === "/" });
-        }
+            // Extrair todas as tags do código
+            while ((match = tagPattern.exec(input)) !== null) {
+                tags.push({ tag: match[1], isClosing: match[0][1] === "/" });
+            }
 
-        // Validar as tags e verificar erros
-        const openTags = [];
-        const errors = [];
-        tags.forEach(({ tag, isClosing }) => {
-            if (!isClosing) {
-                openTags.push(tag); // Tag aberta
-            } else {
-                if (openTags[openTags.length - 1] === tag) {
-                    openTags.pop(); // Fechamento correto
+            // Validar as tags e verificar erros
+            const openTags = [];
+            const errors = [];
+            tags.forEach(({ tag, isClosing }) => {
+                if (!isClosing) {
+                    openTags.push(tag); // Tag aberta
                 } else {
-                    errors.push(`Erro: Tag <${tag}> fechada incorretamente.`);
+                    if (openTags[openTags.length - 1] === tag) {
+                        openTags.pop(); // Fechamento correto
+                    } else {
+                        errors.push(`Erro: Tag <${tag}> fechada incorretamente.`);
+                    }
                 }
-            }
-        });
-
-        // Checar por tags não fechadas
-        openTags.forEach(unclosedTag => {
-            errors.push(`Erro: Tag <${unclosedTag}> não foi fechada.`);
-        });
-
-        // Mostrar os erros ou sugestão
-        if (errors.length > 0) {
-            errors.forEach(error => {
-                output.innerHTML += `<div class="error">${error}</div>\n`;
             });
-        } else {
-            output.innerHTML += `<div class="suggestion">O código HTML está corretamente estruturado!</div>\n`;
+
+            // Checar por tags não fechadas
+            openTags.forEach(unclosedTag => {
+                errors.push(`Erro: Tag <${unclosedTag}> não foi fechada.`);
+            });
+
+            // Mostrar os erros ou sugestão
+            if (errors.length > 0) {
+                errors.forEach(error => {
+                    output.innerHTML += `<div class="error">${error}</div>`;
+                });
+            } else {
+                output.innerHTML += `<div class="suggestion">O código HTML está corretamente estruturado!</div>`;
+            }
+
+            // Mostrar as tags não fechadas com destaque
+            showUnclosedTags(openTags);
+
+            // Formatar o HTML inserido para exibição
+            const formattedHTML = formatHTML(input);
+            output.innerHTML += `<h3>HTML Formatado:</h3><pre>${formattedHTML}</pre>`;
         }
 
-        // Mostrar as tags não fechadas com destaque
-        showUnclosedTags(openTags);
+        function formatHTML(html) {
+            let formatted = "";
+            const lines = html.split(/\r?\n/);
+            let indentLevel = 0;
 
-        // Formatar o HTML inserido para exibição
-        const formattedHTML = formatHTML(input);
-        output.innerHTML += `<h3>HTML Formatado:</h3>\n<pre>${formattedHTML}</pre>`;
-    }
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith("</")) {
+                    indentLevel--;
+                }
 
-    function formatHTML(html) {
-        let formatted = "";
-        const lines = html.split(/\r?\n/);
-        let indentLevel = 0;
+                formatted += "  ".repeat(indentLevel) + trimmed + "\n";
 
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed.startsWith("</")) {
-                indentLevel--;
-            }
-
-            formatted += "  ".repeat(indentLevel) + trimmed + "\n";
-
-            if (trimmed.endsWith(">") && !trimmed.startsWith("</") && !trimmed.endsWith("/>")) {
-                indentLevel++;
-            }
-        });
-
-        return formatted;
-    }
-
-    function showUnclosedTags(openTags) {
-        const output = document.getElementById("output");
-
-        if (openTags.length > 0) {
-            output.innerHTML += "<h3>Tags Não Fechadas:</h3>";
-            openTags.forEach(tag => {
-                output.innerHTML += `<div class="unclosed-tag">&lt;${tag}&gt;</div>\n`;
+                if (trimmed.endsWith(">") && !trimmed.startsWith("</") && !trimmed.endsWith("/>")) {
+                    indentLevel++;
+                }
             });
+
+            return formatted;
         }
-    }
-</script>
+
+        function showUnclosedTags(openTags) {
+            const output = document.getElementById("output");
+
+            if (openTags.length > 0) {
+                output.innerHTML += "<h3>Tags Não Fechadas:</h3>";
+                openTags.forEach(tag => {
+                    output.innerHTML += `<div class="unclosed-tag">&lt;${tag}&gt;</div>`;
+                });
+            }
+        }
+    </script>
 
 </body>
 </html>
