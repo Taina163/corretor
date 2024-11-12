@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corretor de HTML</title>
+    <!-- Importando fontes do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos Globais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f7fc;
+            padding: 20px;
+        }
+    .logo-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 500;
+            color: #1e90ff;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 2px solid #1e90ff;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            color: #333;
+            background-color: #f9f9f9;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-family: 'Source Code Pro', monospace; /* Fonte monoespaçada para código */
+        }
+
+        textarea:focus {
+            border-color: #007bff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Melhorias visuais da área de saída */
+        .output {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #eef7ff;
+            border: 2px solid #007bff;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 100px;
+            font-family: 'Source Code Pro', monospace; /* Fonte para código */
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        .output h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #007bff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .output .error {
+            color: #d9534f;
+            font-weight: 600;
+            background-color: #f8d7da;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .output .suggestion {
+            color: #28a745;
+            font-weight: 600;
+            background-color: #d4edda;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .output .unclosed-tag {
+            color: #d9534f;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+            display: inline-block;
+            background-color: #f9d6d6;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            margin-top: 15px;
+            font-family: 'Source Code Pro', monospace; /* Fonte monoespaçada para código */
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                font-size: 24px;
+            }
+
+            textarea {
+                height: 200px;
+            }
+
+            .btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+ <div class="logo-container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSKXDVo-XKlkR3oIE2AOB3ReEz2y_KskI0oQ&s" alt="Logo" class="logo">
+    </div>
+
+<div class="container">
+    <div class="header">Corretor de HTML</div>
+    <textarea id="htmlInput" placeholder="Insira seu código HTML aqui..."></textarea>
+    <button class="btn" onclick="checkHTML()">Verificar Código</button>
+    <div id="output" class="output"></div>
+</div>
+
+<script>
+    function checkHTML() {
+        const input = document.getElementById("htmlInput").value;
+        const output = document.getElementById("output");
+        output.innerHTML = ""; // Limpar a área de saída
+
+        // Regex para capturar tags HTML
+        const tagPattern = /<\/?([a-z]+)(?: .*)?>/g;
+        const tags = [];
+        let match;
+
+        // Extrair todas as tags do código
+        while ((match = tagPattern.exec(input)) !== null) {
+            tags.push({ tag: match[1], isClosing: match[0][1] === "/" });
+        }
+
+        // Validar as tags e verificar erros
+        const openTags = [];
+        const errors = [];
+        tags.forEach(({ tag, isClosing }) => {
+            if (!isClosing) {
+                openTags.push(tag); // Tag aberta
+            } else {
+                if (openTags[openTags.length - 1] === tag) {
+                    openTags.pop(); // Fechamento correto
+                } else {
+                    errors.push(`Erro: Tag <${tag}> fechada incorretamente.`);
+                }
+            }
+        });
+
+        // Checar por tags não fechadas
+        openTags.forEach(unclosedTag => {
+            errors.push(`Erro: Tag <${unclosedTag}> não foi fechada.`);
+        });
+
+        // Mostrar os erros ou sugestão
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                output.innerHTML += `<div class="error">${error}</div>\n`;
+            });
+        } else {
+            output.innerHTML += `<div class="suggestion">O código HTML está corretamente estruturado!</div>\n`;
+        }
+
+        // Mostrar as tags não fechadas com destaque
+        showUnclosedTags(openTags);
+
+        // Formatar o HTML inserido para exibição
+        const formattedHTML = formatHTML(input);
+        output.innerHTML += `<h3>HTML Formatado:</h3>\n<pre>${formattedHTML}</pre>`;
+    }
+
+    function formatHTML(html) {
+        let formatted = "";
+        const lines = html.split(/\r?\n/);
+        let indentLevel = 0;
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("</")) {
+                indentLevel--;
+            }
+
+            formatted += "  ".repeat(indentLevel) + trimmed + "\n";
+
+            if (trimmed.endsWith(">") && !trimmed.startsWith("</") && !trimmed.endsWith("/>")) {
+                indentLevel++;
+            }
+        });
+
+        return formatted;
+    }
+
+    function showUnclosedTags(openTags) {
+        const output = document.getElementById("output");
+
+        if (openTags.length > 0) {
+            output.innerHTML += "<h3>Tags Não Fechadas:</h3>";
+            openTags.forEach(tag => {
+                output.innerHTML += `<div class="unclosed-tag">&lt;${tag}&gt;</div>\n`;
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
